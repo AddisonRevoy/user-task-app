@@ -13,3 +13,15 @@ export function generateTask(partial?: Partial<Task>): Task {
     ...partial,
   };
 }
+
+export function copyTask(task: Task): Task {
+  return {
+    uuid: task.uuid,
+    title: task.title,
+    completed: task.completed,
+    description: task.description,
+    priority: task.priority,
+    isArchived: task.isArchived,
+    scheduledDate: task.scheduledDate,
+  };
+}

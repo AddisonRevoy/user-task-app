@@ -2,7 +2,7 @@ import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserModule, By } from '@angular/platform-browser';
-import { Task, generateTask } from '@take-home/shared';
+import { Task, copyTask, generateTask } from '@take-home/shared';
 import { Observable, of } from 'rxjs';
 import { ListComponent } from './list.component';
 import { TasksService } from '../tasks.service';
@@ -26,12 +26,14 @@ const fakeTasks: Task[] = [
 ];
 
 class MockTasksService {
-  tasks: Task[] = fakeTasks;
+  // copy tasks for initialization to prevent
+  // changes from carrying over bewteen tests
+  tasks: Task[] = fakeTasks.map((t) => copyTask(t));
   getTasksFromApi(): Observable<Task[]> {
-    return of(fakeTasks);
+    return of(fakeTasks.map((t) => copyTask(t)));
   }
   getTasksFromStorage(): Promise<Task[]> {
-    return Promise.resolve(fakeTasks);
+    return Promise.resolve(fakeTasks.map((t) => copyTask(t)));
   }
   filterTask(): void {
     return;
@@ -136,11 +138,23 @@ describe('ListComponent', () => {
       MatButtonHarness.with({ selector: '[data-testid="delete-task"]' }),
     );
     await deleteButton.click();
-    deleteButton.click();
-    fixture.detectChanges();
     expect(component.onDeleteTask).toHaveBeenCalledTimes(1);
     expect(tasksService.tasks[0].isArchived).toBe(true);
+    expect(tasksService.tasks[1].isArchived).toBe(false);
   });
 
-  it.todo(`should not display archived tasks after deleting them`);
+  it(`should not display archived tasks after deleting them`, async () => {
+    expect(tasksService.tasks[0].isArchived).toBe(false);
+    jest.spyOn(component, 'onDeleteTask');
+    jest.spyOn(tasksService, 'filterTask');
+    const deleteButton = await loader.getHarness(
+      MatButtonHarness.with({ selector: '[data-testid="delete-task"]' }),
+    );
+    deleteButton.click().then(() => {
+      fixture.detectChanges();
+      expect(tasksService.filterTask).toHaveBeenCalledWith('isArchived');
+      const taskLists = fixture.debugElement.queryAll(By.css('mat-card'));
+      expect(taskLists.length).toEqual(fakeTasks.length - 1);
+    });
+  });
 });
