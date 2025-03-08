@@ -58,7 +58,7 @@ export class AddComponent {
     // save new task and handle failed save
     this.storageService
       .addTaskItem(newTask)
-      .then((_) => this.router.navigateByUrl(''))
+      .then((_) => this.router.navigateByUrl('/'))
       .catch((err) => {
         this.saving = false;
         this.saveFailed = true;
@@ -67,7 +67,7 @@ export class AddComponent {
   }
 
   onCancel(): void {
-    this.router.navigateByUrl('');
+    this.router.navigateByUrl('/');
   }
 
   get dueDate() {

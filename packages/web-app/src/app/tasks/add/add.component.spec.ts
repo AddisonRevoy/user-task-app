@@ -16,8 +16,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
 class MockStorageService {
-  updateTaskItem(): void {
-    return;
+  addTaskItem(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  updateTaskItem(): Promise<void> {
+    return Promise.resolve();
   }
 }
 
@@ -82,6 +86,8 @@ describe('AddComponent', () => {
   });
 
   it(`should prevent adding task without a valid title`, async () => {
+    // due date is required
+    component['addTaskForm'].controls['dueDate'].setValue(new Date());
     const addButton = await loader.getHarness(
       MatButtonHarness.with({ selector: '[data-testid="add-task"]' }),
     );
@@ -96,27 +102,48 @@ describe('AddComponent', () => {
     expect(await addButton.isDisabled()).toBeFalsy();
   });
 
+  it(`should prevent adding task without a valid due date`, async () => {
+    // title is required
+    component['addTaskForm'].controls['title'].setValue(
+      'This is a valid title',
+    );
+    const addButton = await loader.getHarness(
+      MatButtonHarness.with({ selector: '[data-testid="add-task"]' }),
+    );
+    expect(await addButton.isDisabled()).toBeTruthy();
+    component['addTaskForm'].controls['dueDate'].setValue('00/00/0000');
+    fixture.detectChanges();
+    expect(await addButton.isDisabled()).toBeTruthy();
+    component['addTaskForm'].controls['dueDate'].setValue(new Date());
+    fixture.detectChanges();
+    expect(await addButton.isDisabled()).toBeFalsy();
+  });
+
   it(`should create a new task for a valid submission and navigate home`, async () => {
     jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     jest.spyOn(component, 'onSubmit');
-    jest.spyOn(storageService, 'updateTaskItem').mockResolvedValue();
+    jest.spyOn(storageService, 'addTaskItem').mockResolvedValue();
+
+    var date = new Date();
     component['addTaskForm'].controls['title'].setValue('Adding a test task');
     component['addTaskForm'].controls['description'].setValue(
       'This task should be added to the list',
     );
+    component['addTaskForm'].controls['dueDate'].setValue(date);
     fixture.detectChanges();
     const addButton = await loader.getHarness(
       MatButtonHarness.with({ selector: '[data-testid="add-task"]' }),
     );
     await addButton.click();
     fixture.detectChanges();
-    expect(component.onSubmit).toBeCalledTimes(1);
-    expect(storageService.updateTaskItem).toBeCalledTimes(1);
-    expect(storageService.updateTaskItem).toBeCalledWith(
+    expect(component.onSubmit).toHaveBeenCalledTimes(1);
+    expect(storageService.addTaskItem).toHaveBeenCalledTimes(1);
+    expect(storageService.addTaskItem).toHaveBeenCalledWith(
       expect.objectContaining({
         isArchived: false,
         title: 'Adding a test task',
         description: 'This task should be added to the list',
+        scheduledDate: date,
       }),
     );
     expect(router.navigateByUrl).toHaveBeenCalledWith('/');

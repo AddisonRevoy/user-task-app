@@ -42,8 +42,8 @@ class MockStorageService {
   getTasks(): Promise<Task[]> {
     return Promise.resolve(fakeTasks);
   }
-  updateTaskItem(): void {
-    return;
+  updateTaskItem(): Promise<void> {
+    return Promise.resolve();
   }
 }
 

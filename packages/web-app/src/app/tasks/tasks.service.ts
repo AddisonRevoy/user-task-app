@@ -36,10 +36,10 @@ export class TasksService {
         );
         break;
       case 'scheduledDate':
-        this.tasks = this.cachedTasks.filter((task) => {
-          var today = new Date();
-          return task.scheduledDate.toDateString() === today.toDateString();
-        });
+        var today = new Date();
+        this.tasks = this.cachedTasks.filter(
+          (task) => task.scheduledDate.toDateString() === today.toDateString(),
+        );
         break;
       case 'completed':
         this.tasks = this.cachedTasks.filter((task) => !task.completed);

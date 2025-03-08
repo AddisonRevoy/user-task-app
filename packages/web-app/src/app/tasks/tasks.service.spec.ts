@@ -80,13 +80,16 @@ describe('TasksService', () => {
 
   describe('filterTask', () => {
     it('should filter task by isArchived key', () => {
-      service.tasks = [generateTask(), generateTask({ isArchived: true })];
+      service.cachedTasks = [
+        generateTask(),
+        generateTask({ isArchived: true }),
+      ];
       service.filterTask('isArchived');
       expect(service.tasks.length).toEqual(1);
     });
 
     it('should filter task by priority key', () => {
-      service.tasks = [
+      service.cachedTasks = [
         generateTask({ priority: TaskPriority.LOW }),
         generateTask({ priority: TaskPriority.HIGH }),
       ];
@@ -95,7 +98,7 @@ describe('TasksService', () => {
     });
 
     it('should filter task by completed key', () => {
-      service.tasks = [
+      service.cachedTasks = [
         generateTask({ completed: false }),
         generateTask({ completed: true }),
       ];
@@ -104,9 +107,11 @@ describe('TasksService', () => {
     });
 
     it('should filter task by scheduledDate key', () => {
-      service.tasks = [
+      service.cachedTasks = [
         generateTask({ scheduledDate: new Date() }),
-        generateTask({ scheduledDate: faker.date.soon({ days: 2 }) }),
+        generateTask({
+          scheduledDate: faker.date.soon({ days: 2, refDate: new Date() }),
+        }),
       ];
       service.filterTask('scheduledDate');
       expect(service.tasks.length).toEqual(1);
@@ -115,7 +120,7 @@ describe('TasksService', () => {
 
   describe('searchTask', () => {
     it('should search task list for title with search term', () => {
-      service.tasks = [
+      service.cachedTasks = [
         generateTask({ title: 'Take home assignment' }),
         generateTask({ title: 'Thank you for your time' }),
       ];
@@ -124,7 +129,7 @@ describe('TasksService', () => {
     });
 
     it('should reset task list if search term is empty', () => {
-      service.tasks = [
+      service.cachedTasks = [
         generateTask({ title: 'Take home assignment' }),
         generateTask({ title: 'Thank you for your time' }),
       ];
