@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Task, TaskPriority } from '@take-home/shared';
 import { StorageService } from '../storage/storage.service';
+import Fuse from 'fuse.js';
 
 @Injectable({ providedIn: 'root' })
 export class TasksService {
-  tasks: Task[] = [];
-  cachedTasks: Task[] = [];
+  public tasks: Task[] = [];
+  public cachedTasks: Task[] = [];
 
   constructor(
     private http: HttpClient,
@@ -21,7 +22,6 @@ export class TasksService {
 
   async getTasksFromStorage(): Promise<void> {
     this.cachedTasks = await this.storageService.getTasks();
-    this.tasks = [...this.cachedTasks];
     this.filterTask('isArchived');
   }
 
@@ -47,8 +47,13 @@ export class TasksService {
   }
 
   searchTask(search: string): void {
-    this.tasks = this.cachedTasks.filter((task) =>
-      task.title.toLowerCase().includes(search.toLowerCase()),
-    );
+    if (!search) {
+      this.filterTask('isArchived');
+      return;
+    }
+
+    const fuse: Fuse<Task> = new Fuse(this.cachedTasks, { keys: ['title'] });
+
+    this.tasks = fuse.search(search).map((m) => m.item);
   }
 }
