@@ -4,6 +4,7 @@
     <mat-form-field>
       <mat-label>Title</mat-label>
       <input matInput type="text" formControlName="title" />
+      <mat-error *ngIf="title?.invalid">{{ titleError() }}</mat-error>
     </mat-form-field>
     <mat-form-field>
       <mat-label>Description</mat-label>
@@ -21,12 +22,24 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field>
+      <mat-label>Due Date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="date"
+        formControlName="dueDate"
+        placeholder="Choose a date"
+      />
+      <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+      <mat-datepicker #date></mat-datepicker>
+      <mat-error *ngIf="dueDate?.invalid">{{ dueDateError() }}</mat-error>
+    </mat-form-field>
     <div class="action-button-row">
       <button
         data-testid="add-task"
         mat-flat-button
         color="primary"
-        [disabled]="addTaskForm.invalid"
+        [disabled]="addTaskForm.invalid || saving"
       >
         Add
       </button>
@@ -39,6 +52,9 @@
       >
         Cancel
       </button>
+    </div>
+    <div class="action-button-row">
+      <mat-error *ngIf="saveFailed">Save failed</mat-error>
     </div>
   </form>
 </div>

@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ListComponent } from './tasks/list/list.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatOptionModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -73,6 +73,7 @@ const routes: Route[] = [
     MatOptionModule,
     MatProgressBarModule,
     MatDatepickerModule,
+    MatNativeDateModule,
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,

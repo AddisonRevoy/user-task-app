@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { openDB } from 'idb';
 import { from, Observable } from 'rxjs';
 
-import { Task } from '@take-home/shared';
+import { Task, TaskPriority } from '@take-home/shared';
 
 @Injectable({
   providedIn: 'root',
@@ -30,14 +30,18 @@ export class StorageService {
   getTask(id: string | null): Promise<Task> {
     const dbPromise = openDB(`${this.dbName}`, this.dbVersion);
     return dbPromise.then((db) => {
-      return db.get(`${this.tasks}`, id ? id : '');
+      return db
+        .get(`${this.tasks}`, id ? id : '')
+        .then((result) => StorageService.parseTask(result));
     });
   }
 
   getTasks(): Promise<Task[]> {
     const dbPromise = openDB(`${this.dbName}`, this.dbVersion);
     return dbPromise.then((db) => {
-      return db.getAll(`${this.tasks}`);
+      return db
+        .getAll(`${this.tasks}`)
+        .then((result) => result.map((r) => StorageService.parseTask(r)));
     });
   }
 
@@ -93,5 +97,21 @@ export class StorageService {
         });
       },
     });
+  }
+
+  /**
+   * Parses a raw data object from the DB into a Task.
+   * Needed to properly read date values.
+   */
+  private static parseTask(value: any): Task {
+    return {
+      uuid: value.uuid,
+      title: value.title,
+      description: value.description,
+      priority: value.priority as TaskPriority,
+      completed: value.completed,
+      isArchived: value.isArchived,
+      scheduledDate: new Date(value.scheduledDate),
+    };
   }
 }

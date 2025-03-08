@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Task } from '@take-home/shared';
+import { Task, TaskPriority } from '@take-home/shared';
 import { StorageService } from '../storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class TasksService {
   tasks: Task[] = [];
+  cachedTasks: Task[] = [];
 
   constructor(
     private http: HttpClient,
@@ -19,33 +20,35 @@ export class TasksService {
   }
 
   async getTasksFromStorage(): Promise<void> {
-    this.tasks = await this.storageService.getTasks();
+    this.cachedTasks = await this.storageService.getTasks();
+    this.tasks = [...this.cachedTasks];
     this.filterTask('isArchived');
   }
 
   filterTask(key: keyof Task): void {
     switch (key) {
       case 'isArchived':
-        this.tasks = this.tasks.filter((task) => !task.isArchived);
+        this.tasks = this.cachedTasks.filter((task) => !task.isArchived);
         break;
       case 'priority':
-        // TODO: add fitler for taks with High Priority
-        throw new Error('Not implemented');
+        this.tasks = this.cachedTasks.filter(
+          (task) => task.priority === TaskPriority.HIGH,
+        );
+        break;
       case 'scheduledDate':
-        // TODO: add fitler for tasks Due Today
-        throw new Error('Not implemented');
+        this.tasks = this.cachedTasks.filter((task) => {
+          var today = new Date();
+          return task.scheduledDate.toDateString() === today.toDateString();
+        });
+        break;
       case 'completed':
-        this.tasks = this.tasks.filter((task) => !task.completed);
+        this.tasks = this.cachedTasks.filter((task) => !task.completed);
     }
   }
 
   searchTask(search: string): void {
-    if (search) {
-      // TODO: filter tasks which title include search value
-      throw new Error('Not implemented');
-    } else {
-      // TODO: reload all tasks from storage
-      throw new Error('Not implemented');
-    }
+    this.tasks = this.cachedTasks.filter((task) =>
+      task.title.toLowerCase().includes(search.toLowerCase()),
+    );
   }
 }
