@@ -10,6 +10,8 @@ export class TasksService {
   public tasks: Task[] = [];
   public cachedTasks: Task[] = [];
 
+  public activeFilters: (keyof Task)[] = ['isArchived'];
+
   constructor(
     private http: HttpClient,
     private storageService: StorageService,
@@ -22,38 +24,50 @@ export class TasksService {
 
   async getTasksFromStorage(): Promise<void> {
     this.cachedTasks = await this.storageService.getTasks();
-    this.filterTask('isArchived');
+    this.activeFilters = ['isArchived'];
+    this.applyActiveFilters();
   }
 
   filterTask(key: keyof Task): void {
-    switch (key) {
-      case 'isArchived':
-        this.tasks = this.cachedTasks.filter((task) => !task.isArchived);
-        break;
-      case 'priority':
-        this.tasks = this.cachedTasks.filter(
-          (task) => task.priority === TaskPriority.HIGH,
-        );
-        break;
-      case 'scheduledDate':
-        var today = new Date();
-        this.tasks = this.cachedTasks.filter(
-          (task) => task.scheduledDate.toDateString() === today.toDateString(),
-        );
-        break;
-      case 'completed':
-        this.tasks = this.cachedTasks.filter((task) => !task.completed);
+    this.activeFilters = ['isArchived', key];
+
+    this.applyActiveFilters();
+  }
+
+  /**
+   * Apply active filters sequentially to loaded tasks.
+   */
+  public applyActiveFilters(): void {
+    this.tasks = [...this.cachedTasks];
+
+    if (this.activeFilters.indexOf('isArchived') >= 0) {
+      this.tasks = this.tasks.filter((task) => !task.isArchived);
+    }
+
+    if (this.activeFilters.indexOf('priority') >= 0) {
+      this.tasks = this.tasks.filter(
+        (task) => task.priority === TaskPriority.HIGH,
+      );
+    }
+
+    if (this.activeFilters.indexOf('scheduledDate') >= 0) {
+      var today = new Date();
+      this.tasks = this.tasks.filter(
+        (task) => task.scheduledDate.toDateString() === today.toDateString(),
+      );
+    }
+
+    if (this.activeFilters.indexOf('completed') >= 0) {
+      this.tasks = this.tasks.filter((task) => !task.completed);
     }
   }
 
   searchTask(search: string): void {
-    if (!search) {
-      this.filterTask('isArchived');
-      return;
+    this.applyActiveFilters();
+
+    if (search) {
+      const fuse: Fuse<Task> = new Fuse(this.cachedTasks, { keys: ['title'] });
+      this.tasks = fuse.search(search).map((m) => m.item);
     }
-
-    const fuse: Fuse<Task> = new Fuse(this.cachedTasks, { keys: ['title'] });
-
-    this.tasks = fuse.search(search).map((m) => m.item);
   }
 }

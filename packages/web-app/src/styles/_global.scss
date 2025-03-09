@@ -2,6 +2,7 @@ html,
 body {
   height: 100%;
   margin: 0px;
+  font-family: 'Open Sans';
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -9,8 +10,12 @@ body {
   .material-icons {
     font-family: 'Material Icons Outlined', 'Material Icons';
     .mat-badge-content {
-      font-family: 'Open Sans';
       font-size: 12px;
     }
   }
+}
+
+mat-form-field.small {
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
 }

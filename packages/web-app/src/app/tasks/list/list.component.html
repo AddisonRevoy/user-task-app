@@ -1,32 +1,41 @@
 <div class="container">
-  <h1>My Daily Tasks</h1>
+  <h1 class="">My Daily Tasks</h1>
   <h3>Total Tasks: {{ tasksService.tasks.length }}</h3>
-  <take-home-filters-component></take-home-filters-component>
-  <take-home-search-component></take-home-search-component>
-  <div class="action-button-row">
-    <button data-testid="add-task" mat-button (click)="onAddTask()">
+  <mat-toolbar>
+    <take-home-search-component></take-home-search-component>
+    <take-home-filters-component></take-home-filters-component>
+    <span class="toolbar-spacer"></span>
+    <button data-testid="add-task" mat-raised-button (click)="onAddTask()">
       Add Task
     </button>
-  </div>
+  </mat-toolbar>
   <div class="tasks">
     <ng-container *ngFor="let item of tasksService.tasks">
       <mat-card [class.complete]="item.completed">
-        <mat-card-title>{{ item.title }}</mat-card-title>
-        <mat-card-header>{{
-          item.scheduledDate | date : 'short'
-        }}</mat-card-header>
+        <mat-card-title-group>
+          <mat-card-title class="title">
+            {{ item.title }}
+            <span *ngIf="item.priority === 'HIGH'" class="high-priority">
+              &nbsp;({{ item.priority }})
+            </span>
+          </mat-card-title>
+          <mat-card-subtitle class="due-date">
+            Due Date: {{ item.scheduledDate | date : 'shortDate' }}
+          </mat-card-subtitle>
+        </mat-card-title-group>
+        <mat-divider></mat-divider>
         <mat-card-content>
-          {{ item.description }}
+          <p>{{ item.description }}</p>
         </mat-card-content>
-        <mat-card-footer *ngIf="item.priority === 'HIGH'">
-          <span class="high-priority">{{ item.priority }}</span>
-        </mat-card-footer>
-        <mat-card-actions *ngIf="item.uuid !== '1' && item.uuid !== '2'">
+        <mat-card-actions
+          class="action-button-row end"
+          *ngIf="item.uuid !== '1' && item.uuid !== '2' && !item.isArchived"
+        >
           <button
             *ngIf="!item.completed"
             data-testid="complete-task"
             color="primary"
-            mat-flat-button
+            mat-raised-button
             (click)="onDoneTask(item)"
           >
             <mat-icon>done</mat-icon>Done
@@ -34,7 +43,7 @@
           <button
             data-testid="delete-task"
             color="warn"
-            mat-flat-button
+            mat-raised-button
             (click)="onDeleteTask(item)"
           >
             <mat-icon>delete</mat-icon>Delete

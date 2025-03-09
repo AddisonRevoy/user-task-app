@@ -3,8 +3,16 @@
 
   .action-button-row {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: var(--layout-gap-size);
+  }
+
+  .due-date {
+    padding: 0 0 5px 15px;
+  }
+
+  .title {
+    padding-left: 5px;
   }
 
   .tasks {
@@ -24,4 +32,8 @@
       }
     }
   }
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
 }

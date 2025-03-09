@@ -68,11 +68,11 @@ describe('TasksService', () => {
 
     it('should filter tasks by isArchived', (done) => {
       jest.spyOn(storageService, 'getTasks').mockResolvedValueOnce([]);
-      jest.spyOn(service, 'filterTask');
+      jest.spyOn(service, 'applyActiveFilters');
       service.getTasksFromStorage().then(() => {
         expect(service.tasks).toEqual([]);
-        expect(service.filterTask).toHaveBeenCalledTimes(1);
-        expect(service.filterTask).toHaveBeenCalledWith('isArchived');
+        expect(service.activeFilters).toEqual(['isArchived']);
+        expect(service.applyActiveFilters).toHaveBeenCalledTimes(1);
         done();
       });
     });

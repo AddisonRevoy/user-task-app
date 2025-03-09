@@ -19,6 +19,8 @@ import { StorageService } from '../../storage/storage.service';
 import { Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 
 const fakeTasks: Task[] = [
   generateTask({ uuid: '3', completed: false }),
@@ -69,6 +71,8 @@ describe('ListComponent', () => {
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
+        MatToolbarModule,
+        MatDividerModule,
       ],
       declarations: [ListComponent, FiltersComponent, SearchComponent],
       providers: [
