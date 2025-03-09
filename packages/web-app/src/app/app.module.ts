@@ -26,6 +26,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './storage/storage.service';
+import { DialogComponent } from './components/dialog/dialog.component';
 
 const routes: Route[] = [
   {
@@ -56,6 +57,7 @@ const routes: Route[] = [
     FiltersComponent,
     AddComponent,
     SearchComponent,
+    DialogComponent,
   ],
   imports: [
     BrowserModule,

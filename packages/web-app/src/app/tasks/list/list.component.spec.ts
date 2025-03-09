@@ -21,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule } from '@angular/material/dialog';
 
 const fakeTasks: Task[] = [
   generateTask({ uuid: '3', completed: false }),
@@ -73,6 +74,7 @@ describe('ListComponent', () => {
         MatIconModule,
         MatToolbarModule,
         MatDividerModule,
+        MatDialogModule,
       ],
       declarations: [ListComponent, FiltersComponent, SearchComponent],
       providers: [
@@ -125,19 +127,50 @@ describe('ListComponent', () => {
   it(`should mark a task as complete when done button is clicked`, async () => {
     expect(tasksService.tasks[0].completed).toBe(false);
     jest.spyOn(component, 'onDoneTask');
+
+    // mock out confirmation dialog and assume confirm is pressed
+    jest
+      .spyOn(component, 'openConfirmationDialog')
+      .mockImplementation((config, callback) => callback());
+
     const doneButton = await loader.getHarness(
       MatButtonHarness.with({ selector: '[data-testid="complete-task"]' }),
     );
     await doneButton.click();
-    doneButton.click();
     fixture.detectChanges();
     expect(component.onDoneTask).toHaveBeenCalledTimes(1);
     expect(tasksService.tasks[0].completed).toBe(true);
   });
 
+  it(`should mark a task as incomplete when reopen button is clicked`, async () => {
+    tasksService.tasks[0].completed = true;
+    expect(tasksService.tasks[0].completed).toBe(true);
+    jest.spyOn(component, 'onReopenTask');
+
+    // mock out confirmation dialog and assume confirm is pressed
+    jest
+      .spyOn(component, 'openConfirmationDialog')
+      .mockImplementation((config, callback) => callback());
+
+    const reopenButton = await loader.getHarness(
+      MatButtonHarness.with({ selector: '[data-testid="reopen-task"]' }),
+    );
+    await reopenButton.click();
+    reopenButton.click();
+    fixture.detectChanges();
+    expect(component.onReopenTask).toHaveBeenCalledTimes(1);
+    expect(tasksService.tasks[0].completed).toBe(false);
+  });
+
   it(`should mark a task as archived when delete button is clicked`, async () => {
     expect(tasksService.tasks[0].isArchived).toBe(false);
     jest.spyOn(component, 'onDeleteTask');
+
+    // mock out confirmation dialog and assume confirm is pressed
+    jest
+      .spyOn(component, 'openConfirmationDialog')
+      .mockImplementation((config, callback) => callback());
+
     const deleteButton = await loader.getHarness(
       MatButtonHarness.with({ selector: '[data-testid="delete-task"]' }),
     );
@@ -151,6 +184,12 @@ describe('ListComponent', () => {
     expect(tasksService.tasks[0].isArchived).toBe(false);
     jest.spyOn(component, 'onDeleteTask');
     jest.spyOn(tasksService, 'filterTask');
+
+    // mock out confirmation dialog and assume confirm is pressed
+    jest
+      .spyOn(component, 'openConfirmationDialog')
+      .mockImplementation((config, callback) => callback());
+
     const deleteButton = await loader.getHarness(
       MatButtonHarness.with({ selector: '[data-testid="delete-task"]' }),
     );
